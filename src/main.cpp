@@ -1,17 +1,19 @@
-﻿#include <math.h>
+﻿#include "MPC.h"
+
+#include "Eigen-3.3/Eigen/Core"
+#include "Eigen-3.3/Eigen/QR"
+#include "json.hpp"
+
 #include <uWS/uWS.h>
+#include <math.h>
 #include <chrono>
 #include <iostream>
 #include <thread>
 #include <vector>
-#include "Eigen-3.3/Eigen/Core"
-#include "Eigen-3.3/Eigen/QR"
-#include "MPC.h"
-#include "json.hpp"
 #include <stdlib.h>
 
 
-// For converting back and forth between radians and degrees:
+// To convert back and forth between radians and degrees:
 #define DEG_2_RAD(X) ( X * M_PI / 180 )
 #define RAD_2_DEG(X) ( X * 180 / M_PI )
 
@@ -22,6 +24,7 @@
 
 // For convenience:
 using json = nlohmann::json;
+using namespace std;
 
 
 // HELPER FUNCTIONS:
@@ -32,9 +35,9 @@ using json = nlohmann::json;
 * else the empty string "" will be returned.
 */
 string hasData(const string s) {
-    auto found_null = s.find("null");
-    auto b1 = s.find_first_of("[");
-    auto b2 = s.rfind("}]");
+    const auto found_null = s.find("null");
+    const auto b1 = s.find_first_of("[");
+    const auto b2 = s.rfind("}]");
 
     if (found_null != string::npos) {
         return "";
@@ -173,14 +176,20 @@ int main(int argc, char **argv) {
     // Initialize MPC with arguments:
     MPC mpc(WEIGHTS, MPC_PARAMS, MPH_2_MS, LF);
 
-    // Initialize WebSocket:
-    uWS::Hub h;
-
     // MESSAGE PROCESSING:
+
+    uWS::Hub h; // Initialize WebSocket.
 
     unsigned int total = 0; // For logging purposes.
 
-    h.onMessage([ &mpc, &V_REF, &MPH_2_MS, &LF, &SLF, &total ](
+    h.onMessage([
+        &mpc,
+        &V_REF,
+        &MPH_2_MS,
+        &LF,
+        &SLF,
+        &total
+    ](
         uWS::WebSocket<uWS::SERVER> ws,
         char *data,
         size_t length,
@@ -190,15 +199,13 @@ int main(int argc, char **argv) {
         // "42" at the start of the message means there's a websocket message event:
         // - The 4 signifies a websocket message
         // - The 2 signifies a websocket event
-        string sdata = string(data).substr(0, length);
-
-        // cout << sdata << endl;
+        const string sdata = string(data).substr(0, length);
 
         if (sdata.size() <= 2 || sdata[0] != '4' || sdata[1] != '2') {
             return;
         }
 
-        string s = hasData(sdata);
+        const string s = hasData(sdata);
 
         if (s == "") {
             // Manual driving:
@@ -210,15 +217,15 @@ int main(int argc, char **argv) {
             return;
         }
 
-        auto j = json::parse(s);
-
-        string event = j[0].get<string>();
+        const auto j = json::parse(s);
+        const string event = j[0].get<string>();
 
         if (event != "telemetry") {
             return;
         }
 
-        // j[1] is the data JSON object
+        // j[1] is the data JSON object:
+
         const vector<double> ptsx = j[1]["ptsx"];
         const vector<double> ptsy = j[1]["ptsy"];
 
@@ -294,11 +301,15 @@ int main(int argc, char **argv) {
             cout << "BRAKE!" << endl;
         }
 
+        // Print stats header once every 10 rows:
+
         if (++total % 10 == 1) {
             cout
                 << " │          │          │          │          │                  │" << endl
                 << " │      CTE │     EPSI │    STEER │  THROTLE │             COST │" << endl;
         }
+
+        // Print actual stats:
 
         // TODO: Add green/yellow/red color to CTE
         // TODO: Implement emergency braking
@@ -366,38 +377,74 @@ int main(int argc, char **argv) {
 
         this_thread::sleep_for(chrono::milliseconds(LAG_MS));
 
+        // Send it:
         ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
     });
 
-    // We don't need this since we're not using HTTP but if it's removed the
-    // program doesn't compile :-(
-    h.onHttpRequest([](uWS::HttpResponse *res, uWS::HttpRequest req, char *data,
-        size_t, size_t) {
+    // ON HTTP REQUEST:
+    // We don't need this since we're not using HTTP but if it's removed the program doesn't compile :-(
+
+    h.onHttpRequest([](
+        uWS::HttpResponse *res,
+        uWS::HttpRequest req,
+        char *data,
+        size_t,
+        size_t
+     ) {
         const std::string s = "<h1>Hello world!</h1>";
+
         if (req.getUrl().valueLength == 1) {
             res->end(s.data(), s.length());
         } else {
-            // i guess this should be done more gracefully?
+            // I guess this should be done more gracefully?
             res->end(nullptr, 0);
         }
     });
 
-    h.onConnection([&h](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
-        std::cout << "Connected!!!" << std::endl;
+    // ON CONNECTION:
+
+    h.onConnection([&h](
+        uWS::WebSocket<uWS::SERVER> ws,
+        uWS::HttpRequest req
+    ) {
+        cout
+            << endl
+            << " Connected!" << endl
+            << endl
+            << "──────────────────────────────────────────────────────" << endl
+            << endl;
     });
 
-    h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code,
-        char *message, size_t length) {
+    // ON DISCONNECTION:
+
+    h.onDisconnection([&h](
+        uWS::WebSocket<uWS::SERVER> ws,
+        int code,
+        char *message,
+        size_t length
+    ) {
         ws.close();
-        std::cout << "Disconnected" << std::endl;
+
+        std::cout << "Disconnected!" << std::endl << std::endl << std::endl;
     });
 
-    int port = 4567;
+    // START LISTENING:
+
+    const int port = 4567;
+
     if (h.listen(port)) {
-        std::cout << "Listening to port " << port << std::endl;
+
+        cout
+            << endl
+            << " Listening on port " << port << "..." << endl
+            << endl
+            << "──────────────────────────────────────────────────────" << endl;
+
     } else {
-        std::cerr << "Failed to listen to port" << std::endl;
+        std::cerr << std::endl << "Failed to listen on port" << port << "!" << std::endl << std::endl;
+
         return -1;
     }
+
     h.run();
 }
