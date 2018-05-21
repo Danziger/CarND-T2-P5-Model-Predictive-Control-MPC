@@ -3,41 +3,64 @@ CarND · T2 · P5 · Model Predictive Control (MPC) Project
 
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
+<img src="output/images/004 - Simulator Rotated.png" alt="Extended Kalman Filter visualization on the simulator." />
 
-## Dependencies
 
-* cmake >= 3.5
- * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1(mac, linux), 3.81(Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools]((https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
-* [uWebSockets](https://github.com/uWebSockets/uWebSockets)
-  * Run either `install-mac.sh` or `install-ubuntu.sh`.
-  * If you install from source, checkout to commit `e94b6e1`, i.e.
-    ```
+Project Overview
+----------------
+
+In this project...
+
+TODO
+
+To test it, [Term 2 Simulator](https://github.com/udacity/self-driving-car-sim/releases) need to be used. The latest version of `main.cpp` used to run this project without the simulator can be found [here](https://github.com/udacity/CarND-Extended-Kalman-Filter-Project/blob/06cbc9967bc62592723eef99b8c8035e4a22ea7b/src/main.cpp).
+
+Dependencies
+------------
+
+- [Udacity's Self Driving Car Simulator](https://github.com/udacity/self-driving-car-sim/releases)
+- [`cmake >= 3.5`](https://cmake.org/install/)
+- `make >= 4.1` (Linux / [Mac](https://developer.apple.com/xcode/features/)), [`3.81` (Windows)](http://gnuwin32.sourceforge.net/packages/make.htm)
+- `gcc/g++ >= 5.4` (Linux / [Mac](https://developer.apple.com/xcode/features/)), [`MinGW` (Windows)](http://www.mingw.org/)
+- [`uWebSockets` commit `e94b6e1`](https://github.com/uWebSockets/uWebSockets). See the following section for installation instructions and additional details.
+- [`Eigen`](http://eigen.tuxfamily.org/index.php?title=Main_Page). This is already part of the repo so you shouldn't have to worry about it.
+- [`Ipopt`](https://projects.coin-or.org/Ipopt) and [`CppAD`](https://www.coin-or.org/CppAD/). See the following section for installation instructions and additional details.
+
+
+Installation
+------------
+
+This repository includes two files that can be used to set up and intall [uWebSocketIO](https://github.com/uWebSockets/uWebSockets):
+
+- `install-mac.sh` for Mac.
+- `install-ubuntu`for either Linux or [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) (**please, make sure it is updated**).
+
+For Windows, Docker or VMware coulso also be used as explained in the [course lectures](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/16cf4a78-4fc7-49e1-8621-3450ca938b77). Details about enviroment setup can also be found there.
+
+If you install from source, checkout to commit `e94b6e1`, as some function signatures have changed in `v0.14.x`:
+
     git clone https://github.com/uWebSockets/uWebSockets
     cd uWebSockets
     git checkout e94b6e1
-    ```
-    Some function signatures have changed in v0.14.x. See [this PR](https://github.com/udacity/CarND-MPC-Project/pull/3) for more details.
 
-* **Ipopt and CppAD:** Please refer to [this document](https://github.com/udacity/CarND-MPC-Project/blob/master/install_Ipopt_CppAD.md) for installation instructions.
-* [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page). This is already part of the repo so you shouldn't have to worry about it.
-* Simulator. You can download these from the [releases tab](https://github.com/udacity/self-driving-car-sim/releases).
-* Not a dependency but read the [DATA.md](./DATA.md) for a description of the data sent back from the simulator.
+See [this PR](https://github.com/udacity/CarND-MPC-Project/pull/3) for more details.
+
+**Regarding `Ipopt` and `CppAD`**, please refer to [this document](https://github.com/udacity/CarND-MPC-Project/blob/master/install_Ipopt_CppAD.md) for installation instructions.
 
 
-## Basic Build Instructions
+Build & Run
+-----------
 
-1. Clone this repo.
-2. Make a build directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./mpc`.
+Once the install is complete, the main program can be built and run by doing the following from the project top directory:
+
+1. Create a build directory and navigate to it: `mkdir build && cd build`
+2. Compile the project: `cmake .. && make`
+3. Run it: `./MPC`
+
+Or, all together (from inside the `build` directory): `clear && cmake .. && make && ./MPC`
+
+Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d).
+
 
 ## Tips
 
