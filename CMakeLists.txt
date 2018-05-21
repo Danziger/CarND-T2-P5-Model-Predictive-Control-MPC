@@ -8,22 +8,22 @@ add_definitions(-std=c++11 -O3)
 
 set(CXX_FLAGS "-Wall -O3 -funroll-loops")
 set(CMAKE_CXX_FLAGS "${CXX_FLAGS}")
+# set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(sources src/MPC.cpp src/main.cpp)
 
-include_directories(/usr/local/include)
-link_directories(/usr/local/lib)
-include_directories(src/Eigen-3.3)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
+include_directories(/usr/local/include)
 include_directories(/usr/local/opt/openssl/include)
+link_directories(/usr/local/lib)
 link_directories(/usr/local/opt/openssl/lib)
 link_directories(/usr/local/Cellar/libuv/1*/lib)
 
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
-add_executable(mpc ${sources})
 
-target_link_libraries(mpc ipopt z ssl uv uWS)
+add_executable(MPC ${sources})
 
+target_link_libraries(MPC ipopt z ssl uv uWS)
