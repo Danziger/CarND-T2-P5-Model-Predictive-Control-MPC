@@ -15,6 +15,9 @@ TODO
 
 To test it, [Term 2 Simulator](https://github.com/udacity/self-driving-car-sim/releases) need to be used. The latest version of `main.cpp` used to run this project without the simulator can be found [here](https://github.com/udacity/CarND-Extended-Kalman-Filter-Project/blob/06cbc9967bc62592723eef99b8c8035e4a22ea7b/src/main.cpp).
 
+If you are looking for Udacity's started code project, you can find it [here](https://github.com/udacity/CarND-MPC-Project).
+
+
 Dependencies
 ------------
 
