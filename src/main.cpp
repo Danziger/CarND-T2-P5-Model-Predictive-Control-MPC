@@ -1,8 +1,10 @@
 ﻿#include "MPC.h"
 
-#include "Eigen-3.3/Eigen/Core"
-#include "Eigen-3.3/Eigen/QR"
-#include "json.hpp"
+#include "common/Eigen-3.3/Eigen/Core"
+#include "common/Eigen-3.3/Eigen/QR"
+#include "common/JSON-Lohmann-2.1.1/json.hpp"
+#include "common/format.h"
+#include "common/helpers.h"
 
 #include <uWS/uWS.h>
 #include <math.h>
@@ -13,10 +15,6 @@
 #include <stdlib.h>
 
 
-// To convert back and forth between radians and degrees:
-#define DEG_2_RAD(X) ( X * M_PI / 180 )
-#define RAD_2_DEG(X) ( X * 180 / M_PI )
-
 // Lag:
 #define LAG_S 0.1
 #define LAG_MS 100
@@ -25,28 +23,6 @@
 // For convenience:
 using json = nlohmann::json;
 using namespace std;
-
-
-// HELPER FUNCTIONS:
-
-/*
-* Checks if the SocketIO event has JSON data.
-* If there is data the JSON object in string format will be returned,
-* else the empty string "" will be returned.
-*/
-string hasData(const string s) {
-    const auto found_null = s.find("null");
-    const auto b1 = s.find_first_of("[");
-    const auto b2 = s.rfind("}]");
-
-    if (found_null != string::npos) {
-        return "";
-    } else if (b1 != string::npos && b2 != string::npos) {
-        return s.substr(b1, b2 - b1 + 2);
-    }
-
-    return "";
-}
 
 
 /**
@@ -205,7 +181,7 @@ int main(int argc, char **argv) {
             return;
         }
 
-        const string s = hasData(sdata);
+        const string s = helpers::hasData(sdata);
 
         if (s == "") {
             // Manual driving:
@@ -363,8 +339,10 @@ int main(int argc, char **argv) {
         msgJson["next_x"] = next_x_vals;
         msgJson["next_y"] = next_y_vals;
 
-        const auto msg = "42[\"steer\"," + msgJson.dump() + "]";
+        const string msg = "42[\"steer\"," + msgJson.dump() + "]";
         
+        // TODO: Use the other json notation!
+
         // Latency
         // The purpose is to mimic real driving conditions where
         // the car does actuate the commands instantly.
@@ -425,7 +403,11 @@ int main(int argc, char **argv) {
     ) {
         ws.close();
 
-        std::cout << "Disconnected!" << std::endl << std::endl << std::endl;
+        cout
+            << endl
+            << "Disconnected!" << endl
+            << endl
+            << SEPARATOR << endl;
     });
 
     // START LISTENING:
@@ -441,7 +423,12 @@ int main(int argc, char **argv) {
             << "──────────────────────────────────────────────────────" << endl;
 
     } else {
-        std::cerr << std::endl << "Failed to listen on port" << port << "!" << std::endl << std::endl;
+
+        cerr
+            << endl
+            << "Failed to listen on port" << port << "!"
+            << endl
+            << SEPARATOR << endl;
 
         return -1;
     }

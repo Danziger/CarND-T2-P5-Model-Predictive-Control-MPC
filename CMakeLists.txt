@@ -10,7 +10,14 @@ set(CXX_FLAGS "-Wall -O3 -funroll-loops")
 set(CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 # set(CMAKE_VERBOSE_MAKEFILE ON)
 
-set(sources src/MPC.cpp src/main.cpp)
+set(SOURCES
+    src/common/format.h
+    src/common/helpers.cpp
+    src/common/helpers.h
+    src/main.cpp
+    src/MPC.cpp
+    src/MPC.h
+)
 
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -24,6 +31,6 @@ link_directories(/usr/local/Cellar/libuv/1*/lib)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 
-add_executable(MPC ${sources})
+add_executable(MPC ${SOURCES})
 
 target_link_libraries(MPC ipopt z ssl uv uWS)
