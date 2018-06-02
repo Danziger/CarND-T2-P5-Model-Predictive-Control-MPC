@@ -65,6 +65,54 @@ Or, all together (from inside the `build` directory): `clear && cmake .. && make
 Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d).
 
 
+Reflection
+----------
+
+### The model
+
+*Student describes their model in detail. This includes the state, actuators and update equations.*
+
+The kinematic model uses the following state and actuators variables, directly coming from the simulator or calculated:
+
+**STATE:**
+
+- `x`: Vehicle's X position in the map's coordinate system. Sent by the simulator as `x`.
+- `y`: Vehicle's Y position in the map's coordinate system. Sent by the simulator as `y`.
+- `v`: Vehicle's current speed. Sent by the simulator as `speed`.
+- `cte`: Vehicle's cross-track error. Calculated using `ptsx` and `ptsy` (sent by the emulator), as explained next.
+- `epsi`: Vehicle's orientation error Calculated using `ptsx` and `ptsy` (sent by the emulator), as explained next.
+
+In order to calculate the CTE and EPSI values (`main.cpp:215-249`), the waypoints X and Y coordinates are transformed from the map's coordinate system to the vehicle's coordinate system and then a 3rd degree polynomial is fitted to them, resulting in:
+
+    const double CTE = coeffs[0]; // f(px) = f(0) = coeffs[0]
+    const double EPSI = -atan(coeffs[1]); // psi - f'(px) = 0 - f'(0) = coeffs[1]
+
+It's worth mentioning that these values are also updated to account for the latency, as I will explain in the last point.
+
+**ACTUATORS:**
+
+- `d`. Vehicle's current 
+- `a`
+
+
+### Timestep Length and Elapsed Duration (N & dt)
+
+*Student discusses the reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.*
+
+
+### Polynomial Fitting and MPC Preprocessing
+
+*A polynomial is fitted to waypoints. If the student preprocesses waypoints, the vehicle state, and/or actuators prior to the MPC procedure it is described.*
+
+Waypoints preprocessing already explained in the first point. State update to account for latency is explained in the next one.
+
+
+### Model Predictive Control with Latency
+
+*The student implements Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.*
+
+
+
 ## Tips
 
 1. It's recommended to test the MPC on basic examples to see if your implementation behaves as desired. One possible example
