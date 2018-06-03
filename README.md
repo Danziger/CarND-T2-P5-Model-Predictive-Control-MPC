@@ -98,7 +98,7 @@ In order to find the optimal value for `d` and `a`, an objective function that c
 
 **REFERENCE STATE COST:**
 
-Costs associated to the difference between the desired optimal state and the estimated one. The get really large weight in comparison to the other terms:
+Costs associated to the difference between the desired optimal state and the estimated one. They get really large weights in comparison to the other terms:
 
 - CTE: Cross-track error.
 - EPSI: Orientation error.
@@ -106,7 +106,7 @@ Costs associated to the difference between the desired optimal state and the est
 
 **CONTROL COST:**
 
-To minimize the use of actuators. Set to small values as it is not a priority, in this case, to reduce the use of actuators.
+To minimize the use of actuators. Set to small weights as it is not a priority, in this case, to reduce the use of actuators.
 
 - Delta: Steering angle.
 - Delta change: To minimize the gap between sequential actuations to achieve temporal smoothness. Set to a relatively large value to follow a relatively smooth trajectory around the track.
