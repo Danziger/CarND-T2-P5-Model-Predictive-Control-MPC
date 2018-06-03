@@ -109,7 +109,7 @@ Costs associated to the difference between the desired optimal state and the est
 To minimize the use of actuators. Set to small weights as it is not a priority, in this case, to reduce the use of actuators.
 
 - Delta: Steering angle.
-- Delta change: To minimize the gap between sequential actuations to achieve temporal smoothness. Set to a relatively large value to follow a relatively smooth trajectory around the track.
+- Delta change: To minimize the gap between sequential actuations to achieve temporal smoothness. Set to a relatively large value to follow a smoother trajectory around the track.
 - Acceleration/throttle.
 - Acceleration/throttle change: Again, to minimize the gap between sequential actuations to achieve temporal smoothness, but set to a smaller value, as we favor trajectory smoothness versus speed smoothness.
 
