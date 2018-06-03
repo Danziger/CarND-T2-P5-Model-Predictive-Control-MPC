@@ -113,7 +113,7 @@ To minimize the use of actuators. Set to small weights as it is not a priority, 
 - Acceleration/throttle.
 - Acceleration/throttle change: Again, to minimize the gap between sequential actuations to achieve temporal smoothness, but set to a smaller value, as we favor trajectory smoothness versus speed smoothness.
 
-The weights assigned to each term has been manually tuned by trial and error.
+The weights assigned to each term have been manually tuned by trial and error.
 
 Also, the following equations are used to calculate the state at timestep `t` given the state at timestep `t - 1` (`MPC.cpp:165-189`):
 
@@ -124,7 +124,7 @@ Also, the following equations are used to calculate the state at timestep `t` gi
     cte1 = f(x0) - y0 + v0 * sin(epsi0) * dt
     epsi1 = psi0 - f'(x0) - v0/Lf * delta0 * dt
     
-Where `Lf = 2.67` is the distance from the front wheels to the vehicle's center of gravity (CoG), as provided by Udacity. Also, note a sign has been changed in the last one to make it work in the emulator.
+Where `Lf = 2.67` is the distance from the front wheels to the vehicle's center of gravity (CoG), as provided by Udacity. Also, note a sign has been changed in the last equation to make it work in the emulator.
 
 
 ### Timestep Length and Elapsed Duration (N & dt)
@@ -156,7 +156,7 @@ In order to account for the latency, the state is updated as follows (`main.cpp:
     cte = cte + v * sin(epsi) * lag
     epsi = epsi - v * lag * delta / Lf
 
-Also, a not too high target speed of 50 MPH has been set and an emergency breaking system has been implemented, which would actuate the breaks at their maximum (`throttle = -1`) if a combination of CTE and EPSI grows too much while going at speeds greater than 50 MPH.
+Also, a not too high target speed of 50 MPH has been set and an emergency breaking system has been implemented, which actuates the breaks at their maximum (`throttle = -1`) if a combination of CTE and EPSI grows too much while going at speeds greater than 50 MPH.
 
 
 ## Tips
