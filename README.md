@@ -94,7 +94,7 @@ It's worth mentioning that these values are also updated to account for the late
 - `d`: Vehicle's current steering angle.
 - `a`: Vehicle's current acceleration/throttle.
 
-In order to find the optimal value for `d` and `a`, an objective function that combines the squared sum of following terms will be minimized using Ipopt (`MPC.cpp:90-118`):
+In order to find the optimal value for `d` and `a`, an objective function that combines the squared sum of the following terms will be minimized using Ipopt (`MPC.cpp:90-118`):
 
 **REFERENCE STATE COST:**
 
