@@ -65,6 +65,100 @@ Or, all together (from inside the `build` directory): `clear && cmake .. && make
 Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d).
 
 
+Reflection
+----------
+
+### The model
+
+*Student describes their model in detail. This includes the state, actuators and update equations.*
+
+The kinematic model uses the following state and actuators variables, directly coming from the simulator or calculated:
+
+**STATE (INPUT):**
+
+- `x`: Vehicle's X position in the map's coordinate system. Sent by the simulator as `x`.
+- `y`: Vehicle's Y position in the map's coordinate system. Sent by the simulator as `y`.
+- `v`: Vehicle's current speed. Sent by the simulator as `speed`.
+- `cte`: Vehicle's cross-track error. Calculated using `ptsx` and `ptsy` (sent by the emulator), as explained next.
+- `epsi`: Vehicle's orientation error Calculated using `ptsx` and `ptsy` (sent by the emulator), as explained next.
+
+In order to calculate the CTE and EPSI values (`main.cpp:215-249`), the waypoints X and Y coordinates are transformed from the map's coordinate system to the vehicle's coordinate system and then a 3rd degree polynomial is fitted to them, resulting in:
+
+    const double CTE = coeffs[0]; // f(px) = f(0) = coeffs[0]
+    const double EPSI = -atan(coeffs[1]); // psi - f'(px) = 0 - f'(0) = coeffs[1]
+
+It's worth mentioning that these values are also updated to account for the latency, as I will explain in the last point of this section.
+
+**ACTUATORS (OUTPUT):**
+
+- `d`: Vehicle's current steering angle.
+- `a`: Vehicle's current acceleration/throttle.
+
+In order to find the optimal value for `d` and `a`, an objective function that combines the squared sum of the following terms will be minimized using Ipopt (`MPC.cpp:90-118`):
+
+**REFERENCE STATE COST:**
+
+Costs associated to the difference between the desired optimal state and the estimated one. They get really large weights in comparison to the other terms:
+
+- CTE: Cross-track error.
+- EPSI: Orientation error.
+- Speed difference, between the estimated speed and the reference/target speed.
+
+**CONTROL COST:**
+
+To minimize the use of actuators. Set to small weights as it is not a priority, in this case, to reduce the use of actuators.
+
+- Delta: Steering angle.
+- Delta change: To minimize the gap between sequential actuations to achieve temporal smoothness. Set to a relatively large value to follow a smoother trajectory around the track.
+- Acceleration/throttle.
+- Acceleration/throttle change: Again, to minimize the gap between sequential actuations to achieve temporal smoothness, but set to a smaller value, as we favor trajectory smoothness versus speed smoothness.
+
+The weights assigned to each term have been manually tuned by trial and error.
+
+Also, the following equations are used to calculate the state at timestep `t` given the state at timestep `t - 1` (`MPC.cpp:165-189`):
+
+    x1 = x0 + v0 * cos(psi0) * dt
+    y1 = y0 + v0 * sin(psi0) * dt
+    psi1 = psi0 + v0/Lf * delta0 * dt
+    v1 = v0 + a0 * dt
+    cte1 = f(x0) - y0 + v0 * sin(epsi0) * dt
+    epsi1 = psi0 - f'(x0) - v0/Lf * delta0 * dt
+    
+Where `Lf = 2.67` is the distance from the front wheels to the vehicle's center of gravity (CoG), as provided by Udacity. Also, note a sign has been changed in the last equation to make it work in the emulator.
+
+
+### Timestep Length and Elapsed Duration (N & dt)
+
+*Student discusses the reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.*
+
+I'm using `N = 10` and `dt = 0.1s` or `dt = 100ms`, as these values have been suggested during the Q&A session and on the forums, so I just kept those as I assumed focusing on tuning the weights instead would have a greater influence on the final result.
+
+Anyway, as the latency is `100ms`, it doesn't make too much sense to use a `dt` value smaller than that.
+
+
+### Polynomial Fitting and MPC Preprocessing
+
+*A polynomial is fitted to waypoints. If the student preprocesses waypoints, the vehicle state, and/or actuators prior to the MPC procedure it is described.*
+
+Waypoints preprocessing already explained in the first point. State update to account for latency is explained in the next one.
+
+
+### Model Predictive Control with Latency
+
+*The student implements Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.*
+
+In order to account for the latency, the state is updated as follows (`main.cpp:256-262`):
+
+    x = v * lag
+    y = 0 (as psi = 0 from the vehicle's coordinate system)
+    psi = -v * lag * delta / Lf
+    v = v + a * lag
+    cte = cte + v * sin(epsi) * lag
+    epsi = epsi - v * lag * delta / Lf
+
+Also, a not too high target speed of 50 MPH has been set and an emergency breaking system has been implemented, which actuates the breaks at their maximum (`throttle = -1`) if a combination of CTE and EPSI grows too much while going at speeds greater than 50 MPH.
+
+
 ## Tips
 
 1. It's recommended to test the MPC on basic examples to see if your implementation behaves as desired. One possible example
