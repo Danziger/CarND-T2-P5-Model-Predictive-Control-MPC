@@ -210,7 +210,7 @@ int main(int argc, char **argv) {
         const double psi = j[1]["psi"];
         const double v = ((double) j[1]["speed"]) * MPH_2_MS;
         const double steering = j[1]["steering_angle"];
-        const double throttle = ((double) j[1]["speed"]) * MPH_2_MS;
+        const double throttle = ((double) j[1]["throttle"]) * MPH_2_MS;
 
         // Calculate waypoints in vehicle's coordinates system:
 
