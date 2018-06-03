@@ -194,6 +194,12 @@ There are a few points from my previous evaluation that I think are incorrect:
 
   True. With more time to adjust the weights, the emergency breaking code is probably not required. Anyway, as you can see in the logs, that code is never executed when running with the default params.
 
+- *Unfortunately it didn't complete the first lap this time and crashed after the bridge.*
+
+  The current implementation of the project has been running, with the default params, for more than 4h uninterrupted without crashing both when I implemented and now, in order to try to verify the issue you are reporting. Therefore, I suspect your issue might be related to this, as I haven't use a VM to work on the projects:
+  
+  ***VM Latency**: Some students have reported differences in behavior using VM's ostensibly a result of latency. Please let us know if issues arise as a result of a VM environment.*
+
 
 ## Tips
 
