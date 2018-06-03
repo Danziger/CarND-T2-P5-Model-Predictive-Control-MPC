@@ -131,9 +131,15 @@ Where `Lf = 2.67` is the distance from the front wheels to the vehicle's center 
 
 *Student discusses the reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.*
 
-I'm using `N = 10` and `dt = 0.1s` or `dt = 100ms`, as these values have been suggested during the Q&A session and on the forums, so I just kept those as I assumed focusing on tuning the weights instead would have a greater influence on the final result.
+I initially used `N = 10` and `dt = 0.1s` or `dt = 100ms`, as these values have been suggested during the Q&A session and on the forums and worked good for me.
 
-Anyway, as the latency is `100ms`, it doesn't make too much sense to use a `dt` value smaller than that.
+Later, I tried some different combinations, but even some of them could still keep the car on the road (for rxample, `N = 15` and `dt = 0.1s`), they were more erratic than the initial choice, at least with the weights I was already using.
+
+In general, a smaller `dt` is better as that would generate steps that are closer to each other (better resolution), but it also means we would need to increase `N` to cover the same total timespan, which has some other implications. Also, as the latency is `100ms`, it doesn't make sense to use a `dt` value smaller than that.
+
+Increasing `N` would increase the computational time and also the amount of memory required by our program to find the optimal solution, so that could introduce some additional delay in the system.
+
+Lastly, increasing the time horizon (`N * dt`) means the predicted path is longer. At higher speeds, this might make sense as some actions like reducing the speed before entering a turn could be better anticipated. However, if the path is too long, it might cover a portion of the track with more than a couple of turns, in which case the 3rd degree polynomial we are using might not be able to fit it properly.
 
 
 ### Polynomial Fitting and MPC Preprocessing
@@ -156,7 +162,37 @@ In order to account for the latency, the state is updated as follows (`main.cpp:
     cte = cte + v * sin(epsi) * lag
     epsi = epsi - v * lag * delta / Lf
 
-Also, a not too high target speed of 50 MPH has been set and an emergency breaking system has been implemented, which actuates the breaks at their maximum (`throttle = -1`) if a combination of CTE and EPSI grows too much while going at speeds greater than 50 MPH.
+Also, a not too high target speed of 50 MPH has been set and an emergency breaking system has been implemented, which actuates the breaks at their maximum (`throttle = -1`) if a combination of CTE and EPSI grows too much while going at speeds greater than 50 MPH. However, when using the default params, that code is never reached.
+
+Lastly, the first 2 actuations are averaged to reduce noise and get a smoother behaviour.
+
+Another option that hasn't been implemented that but could help keeping the car on the road at higher speeds would be to add a new cost factor `speed * steering` that would make the car reduce its speed while turning.
+
+### Evaluation Comments
+
+There are a few points from my previous evaluation that I think are incorrect:
+
+- *Latency handling is implemented correctly. However, there are some potential bugs in MPC implementation including sign of delta and velocity conversion for throttle which shouldn't be there.*
+
+  In `Project: Model Predictive Control > 2. Tips and Tricks` they clearly point out that *if delta is positive we rotate counter-clockwise, or turn left. In the simulator however, a positive value implies a right turn and a negative value implies a left turn.* Therefore, there are two options to fix this: change the sign in the equation as I did or leave the equation unchanged and multiply the steering value by `-1` before sending it to the simulator.
+
+  Regarding the velocity conversion for throttle, when running with the default params (which are the ones provided for the evaluation), that's not used, as the conversion factor is set to `1` by default. Anyway, as `throttle` is used as acceleration in `main.cpp:260` to update the state to account for the latency (`v = v + throttle * lag`), it also needs to be converted so that both units match.
+
+  That conversion factor is also used in `MPC.cpp:286-287` to set the lower and upper limits for the acceleration, so the opposite conversion needs to be applied in `main.cpp:271` (`double throttle_control = vars[2] / MPH_2_MS`) in order to send a value back to the emulator that is in the interval `[-1, 1]`.
+  
+  These conversions might not be needed, and actually, as I pointed out, they are not used right now, or might be implemented differently, but the reasoning behind each of them is correct, so the comments pointing out they should be removed are incorrect.
+
+- *I think the code is overly complicated with many if statements, constant and vectors, making it difficult for other to read. For example, what should argc be? As given by skeleton, we don't pass in any argument when executing the function, so you should make sure the default values are what you intend to submit.*
+
+  I think that part of the code is not meant to be evaluated, the same way the changes I made to reduce the nesting in the WS handler are not evaluated either. You should focus on the `MPC.cpp` and `MPC.h` files and the relevant part of `main.cpp` (lines `203` to `359`, mainly). Anyway, I don't consider it to be complicated or hard to read, it's just a bunch of loops and ternaries getting a value from the command line arguments or from a vector/hardcoded constant of default values.
+  
+  `argc` and `argv` are how command line arguments are passed to C/C++. See https://stackoverflow.com/questions/3024197/what-does-int-argc-char-argv-mean
+  
+  Lastly, the default values are already the ones that should be evaluated, there's no need for you to run the executable passing any params.
+  
+- *You shouldn't need this, when all equations are implemented correctly and with good cost weights, MPC will provide good result.*
+
+  True. With more time to adjust the weights, the emergency breaking code is probably not required. Anyway, as you can see in the logs, that code is never executed when running with the default params.
 
 
 ## Tips
